@@ -1,62 +1,280 @@
-# Turku Tourism Intelligence
+# Turku Business Intelligence
 
-**Data Engineering / Data Analytics portfolio project** using open hotel-night data for Turku, Tampere and Oulu, Finland.
+[Посмотреть дашборд в PDF — 3 страницы](turku_tourism_dashboard.pdf)
 
-## Choose a language / Выберите язык
+Проект демонстрирует полный цикл работы с открытыми данными: получение через API, сохранение исходных ответов, проверку качества, загрузку в PostgreSQL, построение аналитических моделей в dbt и обновление под управлением Airflow.
 
-| Version | Project and setup | Dashboard PDF |
-|---|---|---|
-| English | [English documentation](turku_tourism_en/README.md) | [View three-page dashboard](turku_tourism_en/turku_tourism_dashboard.pdf) |
-| Русский | [Документация на русском](turku_tourism_ru/README.md) | [Посмотреть дашборд — 3 страницы](turku_tourism_ru/turku_tourism_dashboard.pdf) |
+Главный вопрос анализа: **как изменились гостиничные ночёвки Турку относительно Тампере и Оулу и какой вклад внесли внутренние и иностранные ночёвки?**
 
-Both folders are language editions of the same project, with the same source data and numeric calculations. Use one edition to run the pipeline; their Docker configurations refer to the same local project and default ports.
+За январь–сентябрь 2026 к тем же месяцам 2025: Турку **+6,66%**, Тампере **+0,49%**, Оулу **+13,40%**. В Турку прирост почти поровну распределён между внутренними и иностранными ночёвками; у Оулу преобладает внутренний сегмент. Причины различий не установлены. [Сравнение городов, методика и ограничения](reports/city_comparison.md).
 
-## Analytical question
+Проект предназначен для DE / DA портфолио: воспроизводимый пайплайн, SQL-анализ и Power BI. Сувенирный магазин остаётся дополнительным контекстом; выбор конкретного помещения этими данными не решён.
 
-How have hotel nights in Turku changed relative to Tampere and Oulu, and how much have domestic and international nights contributed?
+## Первый аналитический результат
 
-### January–September 2026 versus the same months of 2025
+В каждом полном году с 2019 по 2025 максимум гостиничных ночёвок в Турку пришёлся на июль. Это показывает сезонность гостиничного спроса, которую следует учитывать при анализе туристического рынка.
 
-| City | Hotel nights | Change | Growth |
-|---|---:|---:|---:|
-| Turku | 689,463 | +43,040 | +6.66% |
-| Tampere | 1,023,197 | +5,017 | +0.49% |
-| Oulu | 449,842 | +53,140 | +13.40% |
+![Гостиничные ночёвки в Турку по месяцам](reports/turku_hotel_nights_seasonality.png)
 
-Turku grew faster than Tampere and more slowly than Oulu. Domestic and international nights contributed almost equally to Turku's increase; domestic nights contributed most of Oulu's increase. These are descriptive comparisons, without a causal claim.
+На 19 ноября 2026 года загружены 279 строк: по 93 месяца (2019-01—2026-09) для Турку, Тампере и Оулу. При последующих обновлениях пайплайн запрашивает данные по последний опубликованный месяц.
 
-See the [full comparative analysis](turku_tourism_en/reports/city_comparison.md) for segment contributions, complete-year seasonality, comparison-group rationale and limitations.
+Источник — [Statistics Finland, StatFin 11lm](https://pxdata.stat.fi/PXWeb/pxweb/en/StatFin/StatFin__matk/11lm.px), лицензия CC BY 4.0.
 
-## Data and implementation
+Ограничения показателя:
 
-- **Source:** [Statistics Finland, StatFin 11lm](https://pxdata.stat.fi/PXWeb/pxweb/en/StatFin/StatFin__matk/11lm.px), CC BY 4.0.
-- **Grain:** municipality × calendar month; 279 rows, 93 months per city, January 2019–September 2026 in the verified snapshot.
-- **Stack:** Python, PostgreSQL 17, Docker Compose, Airflow 3.4.0, dbt Core 1.12.7, SQL, matplotlib and Power BI Desktop.
+- Гостиничные ночёвки измеряются в ночёвках, а не в уникальных туристах.
+- Они не показывают пешеходный поток у конкретного помещения или продажи сувениров.
+- Данные за 2026 год предварительные и могут пересматриваться.
+- В 2025 году изменилась классификация гостиниц, поэтому сравнение объёмов с более ранними годами требует осторожности.
+
+## Динамика гостиничных ночёвок
+
+За январь–сентябрь 2026 года зарегистрировано 689 463 гостиничные ночёвки против 646 423 за те же месяцы 2025 года. Прирост составил **43 040 ночёвок, или 6,66%**.
+
+Рост наблюдался в семи из девяти месяцев. Самый большой абсолютный прирост пришёлся на январь: **+12 121 ночёвка**. В апреле и мае показатели снизились; суммарное снижение за эти два месяца составило **6 832 ночёвки**.
+
+![Изменение гостиничных ночёвок по месяцам](reports/turku_hotel_nights_monthly_change.png)
+
+Сравниваются одинаковые календарные месяцы. Данные 2026 года предварительные и могут пересматриваться. Расчёт описывает гостиничные ночёвки и не является оценкой продаж сувениров.
+
+График строится из PostgreSQL и обновляется задачей Airflow `plot_monthly_change`. Успешный запуск всей цепочки из семи задач подтверждён 18 ноября 2026 года.
+
+## Внутренние и иностранные ночёвки
+
+За январь–сентябрь 2026 года внутренние ночёвки выросли на **21 354 (+3,96%)**, иностранные — на **21 686 (+20,28%)** относительно тех же месяцев 2025 года. Доля иностранных ночёвок увеличилась с **16,54% до 18,65%**.
+
+В 2025 году июнь–август дали **35,36%** годовых внутренних ночёвок и **38,94%** иностранных. Каждый сегмент на графике нормирован на собственный годовой итог.
+
+![Сезонность внутренних и иностранных ночёвок](reports/turku_hotel_nights_segment_seasonality.png)
+
+График выбирает последний год с 12 месяцами данных. При наличии предварительных значений он отмечает год звёздочкой и выводит предупреждение.
+
+Подробные результаты и ограничения: [аналитический отчёт](reports/tourism_findings.md).
+
+## Как устроен пайплайн
 
 ```text
-StatFin API → timestamped raw JSON and validated CSV
-→ transactional PostgreSQL upsert
-→ three dbt views and quality tests
-→ SQL analysis, charts and Power BI import
+StatFin API
+    → исходный JSON и CSV
+    → проверка качества данных
+    → PostgreSQL: public.hotel_nights_monthly
+    → dbt: marts.stg_statfin_hotel_nights
+    → dbt: marts.tourism_seasonality
+    → три теста dbt и SQL-контроль
+    → три графика
 ```
 
-The Airflow DAG runs seven sequential tasks. The local schedule is daily at 01:20 Europe/Moscow, requiring the computer and containers to be running. Power BI import is refreshed separately.
+Исходные ответы API сохраняются отдельными JSON-файлами с временем получения в `data/raw/statfin/`.
 
-![Seasonality of domestic and international hotel nights in Turku](turku_tourism_en/reports/turku_hotel_nights_segment_seasonality.png)
+CSV `data/hotel_nights_monthly.csv` содержит `municipality_code`, месяц, три счётчика ночёвок, признак предварительности и время получения в UTC. Коды: 853 — Турку, 837 — Тампере, 564 — Оулу. Каждый город должен иметь одинаковые последовательные месяцы с 2019-01. Старая выгрузка `turku_hotel_nights.csv` заменена этим файлом; прежние исходные JSON сохранены.
 
-## Reproduce or review
+В PostgreSQL одна запись соответствует муниципалитету и месяцу. Повторная загрузка того же CSV не создаёт дубликатов. Более свежая выгрузка позволяет обновлять ранее опубликованные значения.
 
-- Start with the [English setup instructions](turku_tourism_en/README.md#stack-and-local-setup) or [Russian instructions](turku_tourism_ru/README.md).
-- For a quick review without Power BI, open either PDF above. Each has Overview 2026, Seasonality 2025 and City comparison 2026.
-- For report definitions, open the chosen folder's `turku_tourism_dashboard.pbip` with its neighbouring `.Report` and `.SemanticModel` folders. Refresh against your local PostgreSQL database.
-- `.env.example` contains a placeholder; create your own local `.env`. Real credentials, Power BI caches and the legacy PBIX are excluded.
+## Модели dbt
 
-## Verification
+Источник dbt — таблица `public.hotel_nights_monthly`, которую наполняет Python-загрузчик.
 
-The three-city pipeline passed 21 Python tests, three dbt tests and a full seven-task manual Airflow run. Empty-database verification loaded 279 rows, with zero changes on repeat and stale-snapshot loads. The report contains 31 measures and three pages; 612 numerical DAX comparisons were completed on the original model. The English edition preserves all 25 numeric expressions. Both final three-page PDFs were reviewed, with aligned years and matching values.
+Модели:
 
-Details: [verification record](turku_tourism_en/reports/verification.md). A cold installation on a different computer has not been verified. This is a local portfolio deployment.
+- `marts.stg_statfin_hotel_nights` — исходные показатели с выделенными годом и номером месяца.
+- `marts.tourism_seasonality` — витрина с тремя показателями ночёвок, количеством месяцев в году, признаком полного года, годовой суммой, долей каждого месяца и долей иностранных ночёвок.
 
-## Interpretation limits
+Годовая сумма и месячные доли рассчитываются только для годов с 12 месяцами данных. Для неполного года эти показатели остаются пустыми.
 
-2026 data are preliminary. Hotel classification changed in 2025, limiting comparisons with earlier years. Hotel nights are not unique visitors, store footfall or sales. The analysis does not control for hotel capacity or other drivers and does not establish causes, forecast demand or select a souvenir-store location. Oulu's official EU title European Capital of Culture 2026 is contextual information; its effect is not estimated.
+- `marts.tourism_city_comparison` — суммы за наблюдаемый год, те же месяцы предыдущего года, рост, доли и вклад сегментов в процентных пунктах.
+
+Все три модели создаются как представления PostgreSQL.
+
+## Как воспроизвести результат
+
+Необходимы Python 3.14 и работающий Docker Desktop.
+
+В корне проекта создай файл `.env` и задай в нём пароль PostgreSQL:
+
+```dotenv
+TURKU_POSTGRES_PASSWORD=your_local_password
+```
+
+Замени `your_local_password` собственным паролем. Файл `.env` исключён из Git через `.gitignore`.
+
+Выполни команды из корня проекта на Windows:
+
+```powershell
+py -3.14 -m pip install matplotlib==3.11.2 "psycopg[binary]==3.3.9" python-dotenv==1.2.4
+docker compose up -d --build
+py -3.14 ingestion/refresh_statfin.py
+```
+
+Пайплайн последовательно:
+
+1. Получает данные StatFin с января 2019 года по последний опубликованный месяц.
+2. Сохраняет исходный ответ и CSV.
+3. Проверяет качество CSV.
+4. Загружает данные в PostgreSQL.
+5. Строит три модели dbt, выполняет три теста dbt и SQL-проверки.
+6. Строит три графика из витрины PostgreSQL.
+
+Графики сохраняются в:
+
+```text
+reports/turku_hotel_nights_seasonality.png
+reports/turku_hotel_nights_monthly_change.png
+reports/turku_hotel_nights_segment_seasonality.png
+```
+
+В Compose настроена проверка готовности PostgreSQL; Airflow запускается после успешной проверки.
+
+dbt установлен внутри контейнера Airflow. Скрипт `build_marts.py` поддерживает запуск из Windows и внутри контейнера.
+
+Для отдельной сборки моделей и запуска проверок:
+
+```powershell
+py -3.14 ingestion/build_marts.py
+```
+
+## Обновление через Airflow
+
+DAG `turku_tourism` выполняет семь последовательных задач:
+
+1. `extract_statfin` — получение общих, внутренних и иностранных ночёвок, сохранение исходного ответа и CSV.
+2. `check_data_quality` — проверка CSV перед загрузкой.
+3. `load_postgres` — загрузка данных в PostgreSQL.
+4. `build_marts` — построение трёх моделей dbt и выполнение трёх тестов.
+5. `plot_seasonality` — график общей сезонности по годам.
+6. `plot_monthly_change` — график изменений относительно тех же месяцев предыдущего года.
+7. `plot_segment_seasonality` — сравнение сезонности внутренних и иностранных ночёвок.
+
+После запуска контейнеров проекта интерфейс Airflow доступен локально по адресу `http://localhost:8080`.
+
+18 ноября 2026 года подтверждён успешный ручной запуск всех семи задач с расширенным набором показателей. Витрина содержит 93 месяца.
+
+Настроено ежедневное расписание на **01:20 по Москве** (`20 1 * * *`, Europe/Moscow).
+19 ноября 2026 года подтверждён фактический запуск типа scheduled: все семь задач завершились успешно (01:20:01—01:21:54 по Москве), две модели и два теста dbt прошли, CSV и три графика обновились.
+Первая попытка подключения к StatFin завершилась таймаутом; автоматический повтор прошёл успешно.
+Подробности: [проверка запуска по расписанию](reports/scheduled_run_verification_2026-11-19.md).
+
+Для выполнения расписания должны работать компьютер, Docker Desktop и контейнеры проекта.
+
+## Проверки качества данных
+
+До загрузки в PostgreSQL задача `check_data_quality` проверяет:
+
+- наличие строк и непрерывность месяцев с января 2019 года;
+- отсутствие повторяющихся месяцев;
+- целые неотрицательные значения общих, внутренних и иностранных ночёвок;
+- равенство суммы внутренних и иностранных ночёвок общему итогу;
+- допустимость признака предварительных данных.
+
+Восемь Python-тестов проверяют корректные данные и обработку ошибок: пустой таблицы, отрицательных значений, повторов, пропущенного месяца, отсутствующего показателя и несовпадающей суммы сегментов.
+
+Запуск:
+
+```powershell
+py -3.14 -m unittest discover -s tests -v
+```
+
+При выполнении `dbt build` запускаются три теста:
+
+- `check_tourism_seasonality` — проверяет месяцы и годовые доли. Для полного года сумма долей должна составлять около 100% с допуском 0,06 процентного пункта; для неполного года доли остаются пустыми.
+- `check_tourism_segments` — проверяет заполненность и неотрицательность сегментов, соответствие их суммы общему итогу и допустимые границы доли иностранных ночёвок.
+
+- `check_city_comparison` — три города с одинаковыми периодами, наличие базы сравнения, равенство сумм сегментов и вкладов общему росту.
+
+В PostgreSQL также заданы ограничения на заполненность, неотрицательность и сумму показателей.
+
+Ошибка сборки или теста приводит к ошибке задачи `build_marts` и блокирует последующее построение графиков.
+
+## Проверка обработки сбоя
+
+Проверена имитированная ошибка получения данных с параметром DAG:
+
+```json
+{"simulate_source_failure": true}
+```
+
+Airflow выполнил три неудачные попытки первой задачи. Последующие задачи не запускались. Ранее загруженные 93 записи в PostgreSQL, CSV и график сохранились.
+
+После выключения имитации новый запуск завершился успешно.
+
+## Проверка расширения на три города
+
+19 ноября 2026 года получен свежий ответ API на 279 строк. В отдельной пустой базе загрузка дала 279 изменений, повтор и попытка загрузить старый снимок — 0. Три модели и три теста dbt прошли (**PASS=6**); 21 Python-тест проверяет контракт и JSON-stat. Все 93 прежних значения Турку сохранены; три графика заново построены из расширенной витрины. Полный ручной запуск Airflow 19 ноября 02:08:30—02:08:51 прошёл с первой попытки во всех семи задачах. Сведения об обновлении рабочей базы и границах проверки — [отчёт](reports/city_comparison_verification_2026-11-19.md).
+
+## Историческая проверка запуска на пустой базе (один город)
+
+19 ноября 2026 года текущая версия с внутренними и иностранными ночёвками проверена на новой базе `turku_bi_bootstrap_20261119_acc65934`, созданной из `template0`.
+До загрузки в ней не было пользовательских объектов.
+
+- Python-загрузчик создал таблицу и загрузил 93 месяца; повтор того же CSV изменил 0 строк.
+- dbt создал две модели и выполнил два теста: **PASS=4 WARN=0 ERROR=0**.
+- Восемь Python-тестов прошли; восемь недопустимых операций отклонены ограничениями PostgreSQL.
+- Все три графика построены из новой витрины в отдельной папке.
+- Данные рабочей базы, код, исходные файлы, существующие графики и dbt-артефакты во время проверки не изменились.
+
+Проверен путь от сохранённого CSV до витрин и графиков в существующих контейнерах. Это не проверка полного развёртывания на новом компьютере или запуска Airflow по расписанию.
+Исторический запуск 18 ноября до добавления сегментов завершился с PASS=3; текущий результат с двумя тестами — PASS=4.
+
+Подробности и границы проверки: [отчёт о запуске на пустой базе](reports/bootstrap_verification_2026-11-19.md).
+База выбирается переменной `TURKU_POSTGRES_DB`; значение по умолчанию — `turku_bi`. При тесте переменная задавалась только тестовым процессам.
+
+## Дашборд Power BI
+
+В корне проекта сохранён `turku_tourism_dashboard.pbip` и соседние папки `.Report` и `.SemanticModel`.
+
+- **01 · Обзор**: выбор года, объёмы сегментов, доля иностранных, изменения за одинаковые месяцы предыдущего года и два помесячных графика.
+- **02 · Сезонность**: только полные годы, летние доли и месячные профили сегментов Турку.
+- **03 · Сравнение городов**: объёмы, рост и структура по трём городам, вклад сегментов и нормированные профили полного года.
+
+Первые две страницы ограничены Турку на уровне страницы; общего фильтра по Турку у отчёта больше нет.
+
+Открой `.pbip` в Power BI Desktop. После обновления базы через Airflow нажми «Обновить» в Power BI: импорт отчёта не обновляется автоматически вместе с PostgreSQL.
+Подключение использует локальную базу `127.0.0.1:5433`, `turku_bi`. Для обновления нужны работающие PostgreSQL и Docker.
+
+19 ноября файлы проверены по схемам Microsoft, модель прочитана библиотекой Analysis Services, меры выполнены запросами только на чтение на локальном движке Power BI и сверены с PostgreSQL.
+19 ноября пользователь прислала изображения обеих страниц после исправления оформления: полные числа, подписи и графики отображаются корректно. Пользователь также подтвердила переключение годов на «Обзоре» и исключение неполного 2026 из «Сезонности». Это проверка прежних двух страниц. После обновления импорта пользователь показала три города и сезонность третьей страницы. Все 31 мера выполнены на движке: 612 числовых сверок прошли. Затем исправлены размер третьей страницы (везде 1600 × 1000) и скрытые столбцы таблицы; для применения и проверки этой разметки нужно переоткрыть PBIP. Отчёт локальный, публичная публикация не выполнена.
+
+Описание расчётов и контрольные значения: [Power BI](reports/powerbi_dashboard.md).
+Исходный `.pbix` сохранён как прежняя версия; изменения PBIP не обновляют его автоматически.
+
+## Дополнительный сценарий безубыточности для Linnankatu 9–11
+
+Этот сценарий хранится отдельно от основного DE / DA анализа. В `rent_listings.csv` объявление имеет собственный `listing_id=KIR01`. Его привязка к точкам `candidate_locations.csv` пока не установлена.
+
+В объявлении помещения площадью 49,5 м² рядом с Библиотечным мостом заявлена аренда **1 372 €/мес.** Вода и электричество оплачиваются по потреблению. В объявлении не указано, входит ли НДС в сумму аренды.
+
+Источник — [Tuloskiinteistöt](https://tuloskiinteistot.fi/fi/17152/turku/linnankatu-9-11/). Сведения зафиксированы 16 ноября 2026 года; актуальность объявления требует повторной проверки перед принятием решения.
+
+Для базового сценария приняты следующие допущения:
+
+- 26 рабочих дней в месяц;
+- 1 800 € расходов на персонал в месяц;
+- 300 € прочих постоянных расходов в месяц;
+- 8 € с покупки после переменных затрат.
+
+При этих допущениях ежемесячные постоянные расходы составляют **3 472 €**. Для их покрытия нужны **434 покупки в месяц**. Дневной ориентир с округлением вверх — **17 покупок**.
+
+Если покупкой заканчиваются 2% проходов мимо входа, для 17 покупок потребуется около 850 проходов за рабочий день. При 1% потребуется 1 700, при 3% — 567.
+
+Это условные пороги, а не измеренный поток или прогноз продаж. Данные городского счётчика на Библиотечном мосту нельзя напрямую считать потоком у входа в помещение.
+
+Расчёт покрывает только включённые в сценарий текущие расходы. Он не является полной оценкой окупаемости бизнеса.
+
+Запуск:
+
+```powershell
+py -3.14 analysis/break_even.py
+```
+
+## Текущие ограничения проекта
+
+Пайплайн автоматизирует работу с гостиничными ночёвками. Данные об аренде и городском пешеходном счётчике пока не подключены к автоматическому обновлению.
+
+Имеющихся данных недостаточно, чтобы определить лучшее помещение или подтвердить прибыльность магазина. Сценарий безубыточности показывает требования к продажам при заданных допущениях.
+
+## Языковые версии
+
+Это самостоятельный русский репозиторий: описание, код, определения Power BI и PDF доступны прямо из корня.
+
+English version: [Turku Tourism Intelligence — English repository](https://github.com/YaraBykova/turku-tourism-intelligence-en).
+
+Обе версии используют одни проверенные исходные данные и одинаковые числовые расчёты. Запускай Compose из одной версии: конфигурации используют одно закреплённое имя проекта и стандартные порты. Публикации интерактивного отчёта в Power BI Service нет.
