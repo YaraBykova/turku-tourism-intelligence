@@ -1,0 +1,178 @@
+{
+  "status": "passed",
+  "started_at_utc": "2026-11-18T22:08:20.658929+00:00",
+  "finished_at_utc": "2026-11-18T22:08:27.571075+00:00",
+  "database": "turku_bi_bootstrap_20261119_acc65934",
+  "template": "template0",
+  "user_objects_before": 0,
+  "csv_rows": 93,
+  "staging_rows": 93,
+  "mart_rows": 93,
+  "period_min": "2019-01-01",
+  "period_max": "2026-09-01",
+  "first_load_changed": 93,
+  "second_load_changed": 0,
+  "python_tests": 8,
+  "dbt_results": [
+    {
+      "unique_id": "model.turku_bi.stg_statfin_hotel_nights",
+      "status": "success",
+      "failures": null
+    },
+    {
+      "unique_id": "model.turku_bi.tourism_seasonality",
+      "status": "success",
+      "failures": null
+    },
+    {
+      "unique_id": "test.turku_bi.check_tourism_seasonality",
+      "status": "pass",
+      "failures": 0
+    },
+    {
+      "unique_id": "test.turku_bi.check_tourism_segments",
+      "status": "pass",
+      "failures": 0
+    }
+  ],
+  "constraint_checks": [
+    {
+      "check": "domestic_not_null",
+      "sqlstate": "23502",
+      "constraint": null,
+      "rejected": true
+    },
+    {
+      "check": "foreign_not_null",
+      "sqlstate": "23502",
+      "constraint": null,
+      "rejected": true
+    },
+    {
+      "check": "domestic_nonnegative",
+      "sqlstate": "23514",
+      "constraint": "hotel_nights_monthly_domestic_nights_check",
+      "rejected": true
+    },
+    {
+      "check": "foreign_nonnegative",
+      "sqlstate": "23514",
+      "constraint": "hotel_nights_monthly_foreign_nights_check",
+      "rejected": true
+    },
+    {
+      "check": "total_nonnegative",
+      "sqlstate": "23514",
+      "constraint": "hotel_nights_monthly_hotel_nights_check",
+      "rejected": true
+    },
+    {
+      "check": "segments_add_up",
+      "sqlstate": "23514",
+      "constraint": "hotel_nights_segments_match",
+      "rejected": true
+    },
+    {
+      "check": "first_day_of_month",
+      "sqlstate": "23514",
+      "constraint": "hotel_nights_monthly_month_check",
+      "rejected": true
+    },
+    {
+      "check": "primary_key_unique",
+      "sqlstate": "23505",
+      "constraint": "hotel_nights_monthly_pkey",
+      "rejected": true
+    }
+  ],
+  "invalid_segment_rows": 0,
+  "incomplete_2026": [
+    9,
+    0,
+    0,
+    false
+  ],
+  "totals_2026": [
+    689463,
+    560859,
+    128604
+  ],
+  "annual_month_shares": [
+    [
+      2019,
+      12,
+      "99.99"
+    ],
+    [
+      2020,
+      12,
+      "99.99"
+    ],
+    [
+      2021,
+      12,
+      "100.02"
+    ],
+    [
+      2022,
+      12,
+      "99.99"
+    ],
+    [
+      2023,
+      12,
+      "99.98"
+    ],
+    [
+      2024,
+      12,
+      "100.01"
+    ],
+    [
+      2025,
+      12,
+      "100.00"
+    ],
+    [
+      2026,
+      9,
+      null
+    ]
+  ],
+  "plots": [
+    {
+      "file": "turku_hotel_nights_monthly_change.png",
+      "pixels": [
+        1760,
+        960
+      ],
+      "bytes": 77152
+    },
+    {
+      "file": "turku_hotel_nights_seasonality.png",
+      "pixels": [
+        1760,
+        960
+      ],
+      "bytes": 208287
+    },
+    {
+      "file": "turku_hotel_nights_segment_seasonality.png",
+      "pixels": [
+        1760,
+        960
+      ],
+      "bytes": 120849
+    }
+  ],
+  "production_unchanged": true,
+  "original_files_unchanged": true,
+  "scope": "Existing containers; saved CSV -> empty database -> current loader -> dbt models/tests -> three plots",
+  "not_verified": [
+    "Fresh installation on another computer",
+    "New API extraction during this check",
+    "Airflow scheduled execution during this check"
+  ],
+  "evidence": "C:\\Users\\Yara\\Desktop\\projects_2026\\Obsidian\\map Turku\\archive\\bootstrap_2026-11-19\\turku_bi_bootstrap_20261119_acc65934",
+  "test_database_kept": true
+}

@@ -1,0 +1,124 @@
+{
+  "status": "passed",
+  "schedule": "20 1 * * *",
+  "timezone": "Europe/Moscow",
+  "run": {
+    "run_id": "scheduled__2026-11-18T22:20:00+00:00",
+    "run_type": "scheduled",
+    "state": "success",
+    "logical_date": "2026-11-18T22:20:00+00:00",
+    "run_after": "2026-11-18T22:20:00+00:00",
+    "start_date": "2026-11-18T22:20:01.526659+00:00",
+    "end_date": "2026-11-18T22:21:54.794394+00:00",
+    "data_interval_start": "2026-11-18T22:20:00+00:00",
+    "data_interval_end": "2026-11-18T22:20:00+00:00",
+    "tasks": [
+      {
+        "task_id": "check_data_quality",
+        "state": "success",
+        "try_number": 1,
+        "start_date": "2026-11-18T22:21:39.225174+00:00",
+        "end_date": "2026-11-18T22:21:39.646787+00:00"
+      },
+      {
+        "task_id": "load_postgres",
+        "state": "success",
+        "try_number": 1,
+        "start_date": "2026-11-18T22:21:39.773423+00:00",
+        "end_date": "2026-11-18T22:21:40.473576+00:00"
+      },
+      {
+        "task_id": "build_marts",
+        "state": "success",
+        "try_number": 1,
+        "start_date": "2026-11-18T22:21:41.817750+00:00",
+        "end_date": "2026-11-18T22:21:48.160970+00:00"
+      },
+      {
+        "task_id": "plot_seasonality",
+        "state": "success",
+        "try_number": 1,
+        "start_date": "2026-11-18T22:21:48.810788+00:00",
+        "end_date": "2026-11-18T22:21:50.158457+00:00"
+      },
+      {
+        "task_id": "plot_monthly_change",
+        "state": "success",
+        "try_number": 1,
+        "start_date": "2026-11-18T22:21:51.679105+00:00",
+        "end_date": "2026-11-18T22:21:52.666562+00:00"
+      },
+      {
+        "task_id": "plot_segment_seasonality",
+        "state": "success",
+        "try_number": 1,
+        "start_date": "2026-11-18T22:21:52.793686+00:00",
+        "end_date": "2026-11-18T22:21:53.870827+00:00"
+      },
+      {
+        "task_id": "extract_statfin",
+        "state": "success",
+        "try_number": 2,
+        "start_date": "2026-11-18T22:21:22.811421+00:00",
+        "end_date": "2026-11-18T22:21:39.053093+00:00"
+      }
+    ]
+  },
+  "rows": 93,
+  "period_min": "2019-01",
+  "period_max": "2026-09",
+  "invalid_segment_rows": 0,
+  "dbt_generated_at_utc": "2026-11-18T22:21:45.101760+00:00",
+  "dbt_results": [
+    {
+      "unique_id": "model.turku_bi.stg_statfin_hotel_nights",
+      "status": "success",
+      "failures": null
+    },
+    {
+      "unique_id": "model.turku_bi.tourism_seasonality",
+      "status": "success",
+      "failures": null
+    },
+    {
+      "unique_id": "test.turku_bi.check_tourism_seasonality",
+      "status": "pass",
+      "failures": 0
+    },
+    {
+      "unique_id": "test.turku_bi.check_tourism_segments",
+      "status": "pass",
+      "failures": 0
+    }
+  ],
+  "files": {
+    "data/turku_hotel_nights.csv": {
+      "sha256": "9ad378fc1fe821d414a24b44dfec39c7857458431787519cac014489453ce160",
+      "mtime_utc": "2026-11-18T22:21:39.039607+00:00",
+      "bytes": 5512
+    },
+    "dbt/target/run_results.json": {
+      "sha256": "059226113939394040262f394ae8ea4d48fb134ab1d415300fb76982f11fd6c5",
+      "mtime_utc": "2026-11-18T22:21:45.144930+00:00",
+      "bytes": 7975
+    },
+    "reports/turku_hotel_nights_seasonality.png": {
+      "sha256": "761a46227285f2a1d6f20b01fda88fff4c8a170f2ef30e1549daa9d24ca3a902",
+      "mtime_utc": "2026-11-18T22:21:50.046855+00:00",
+      "bytes": 208287
+    },
+    "reports/turku_hotel_nights_monthly_change.png": {
+      "sha256": "d5c6c70360b7f32a5dff9345460a690c033444200944da9b1acd5e6c9ec719c7",
+      "mtime_utc": "2026-11-18T22:21:52.558898+00:00",
+      "bytes": 77152
+    },
+    "reports/turku_hotel_nights_segment_seasonality.png": {
+      "sha256": "b20b85415304eaa12fc69e7cf9e4adb42849e5d4a404e984d0ef7dabf24a3901",
+      "mtime_utc": "2026-11-18T22:21:53.771711+00:00",
+      "bytes": 120849
+    }
+  },
+  "next_run": "2026-11-19T22:20:00+00:00",
+  "manual_trigger_used": false,
+  "power_bi_import_refreshed": false
+}

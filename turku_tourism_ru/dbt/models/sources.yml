@@ -1,0 +1,9 @@
+version: 2
+
+sources:
+  - name: statfin
+    schema: public
+    description: "Данные Statistics Finland, загруженные Python-пайплайном."
+    tables:
+      - name: hotel_nights_monthly
+        description: "Гостиничные ночёвки по муниципалитету и месяцу."

@@ -1,0 +1,134 @@
+{
+  "database": "turku_bi_cities_20261119_46fbd868",
+  "empty_database_verified": true,
+  "rows": 279,
+  "coverage": [
+    {
+      "municipality_code": "564",
+      "months": 93,
+      "first_month": "2019-01-01",
+      "last_month": "2026-09-01"
+    },
+    {
+      "municipality_code": "837",
+      "months": 93,
+      "first_month": "2019-01-01",
+      "last_month": "2026-09-01"
+    },
+    {
+      "municipality_code": "853",
+      "months": 93,
+      "first_month": "2019-01-01",
+      "last_month": "2026-09-01"
+    }
+  ],
+  "idempotent_repeat_changes": 0,
+  "stale_snapshot_changes": 0,
+  "dbt_models": 3,
+  "dbt_tests": 3,
+  "production_unchanged_during_test": true,
+  "turku_business_values_unchanged": true,
+  "production_before_sha256": "cd7fe27f3be7abb98c0cd934c424b81dbb3fbc6e48f9e4c51cc4ba34b497fffe",
+  "verified_at_utc": "2026-11-18T23:00:21.383299+00:00",
+  "working_database_updated": true,
+  "working_rows": 279,
+  "working_repeat_load_changes": 0,
+  "working_turku_values_preserved": true,
+  "new_sql_queries_executed": 2,
+  "updated_files": 71,
+  "powerbi_engine_execution": "31 measures executed; 612 numeric comparisons passed",
+  "powerbi_new_page_display": "User confirmed three cities/profile after refresh; fixed size/table rendering pending reopen",
+  "airflow_run": {
+    "run_id": "manual__city_comparison_20261119_verification",
+    "run_type": "manual",
+    "state": "success",
+    "logical_date": null,
+    "run_after": "2026-11-18T23:08:29.464047+00:00",
+    "start_date": "2026-11-18T23:08:30.044128+00:00",
+    "end_date": "2026-11-18T23:08:51.192151+00:00",
+    "data_interval_start": null,
+    "data_interval_end": null,
+    "tasks": [
+      {
+        "task_id": "extract_statfin",
+        "state": "success",
+        "try_number": 1,
+        "start_date": "2026-11-18T23:08:30.742797+00:00",
+        "end_date": "2026-11-18T23:08:36.818175+00:00"
+      },
+      {
+        "task_id": "check_data_quality",
+        "state": "success",
+        "try_number": 1,
+        "start_date": "2026-11-18T23:08:37.222149+00:00",
+        "end_date": "2026-11-18T23:08:37.565106+00:00"
+      },
+      {
+        "task_id": "load_postgres",
+        "state": "success",
+        "try_number": 1,
+        "start_date": "2026-11-18T23:08:38.717175+00:00",
+        "end_date": "2026-11-18T23:08:39.124875+00:00"
+      },
+      {
+        "task_id": "build_marts",
+        "state": "success",
+        "try_number": 1,
+        "start_date": "2026-11-18T23:08:39.327183+00:00",
+        "end_date": "2026-11-18T23:08:44.598671+00:00"
+      },
+      {
+        "task_id": "plot_seasonality",
+        "state": "success",
+        "try_number": 1,
+        "start_date": "2026-11-18T23:08:45.272626+00:00",
+        "end_date": "2026-11-18T23:08:46.220011+00:00"
+      },
+      {
+        "task_id": "plot_monthly_change",
+        "state": "success",
+        "try_number": 1,
+        "start_date": "2026-11-18T23:08:47.251445+00:00",
+        "end_date": "2026-11-18T23:08:48.247921+00:00"
+      },
+      {
+        "task_id": "plot_segment_seasonality",
+        "state": "success",
+        "try_number": 1,
+        "start_date": "2026-11-18T23:08:49.606035+00:00",
+        "end_date": "2026-11-18T23:08:50.545491+00:00"
+      }
+    ]
+  },
+  "airflow_all_seven_first_attempt": true,
+  "airflow_duration_seconds": 21.148023,
+  "fresh_airflow_values_match_tested_snapshot": true,
+  "airflow_artifacts": {
+    "data/hotel_nights_monthly.csv": {
+      "sha256": "a011c03cd23639fa0e1243fa687f5341954d187efa3d5b4b9d592dac482bae4e",
+      "mtime_utc": "2026-11-18T23:08:36.804246+00:00"
+    },
+    "dbt/target/run_results.json": {
+      "sha256": "cf2a08df7dffa6944177ae7653057e71b90365833e9bf98133aa00afd93c389d",
+      "mtime_utc": "2026-11-18T23:08:41.896387+00:00"
+    },
+    "reports/turku_hotel_nights_seasonality.png": {
+      "sha256": "761a46227285f2a1d6f20b01fda88fff4c8a170f2ef30e1549daa9d24ca3a902",
+      "mtime_utc": "2026-11-18T23:08:46.121625+00:00"
+    },
+    "reports/turku_hotel_nights_monthly_change.png": {
+      "sha256": "d5c6c70360b7f32a5dff9345460a690c033444200944da9b1acd5e6c9ec719c7",
+      "mtime_utc": "2026-11-18T23:08:48.157712+00:00"
+    },
+    "reports/turku_hotel_nights_segment_seasonality.png": {
+      "sha256": "b20b85415304eaa12fc69e7cf9e4adb42849e5d4a404e984d0ef7dabf24a3901",
+      "mtime_utc": "2026-11-18T23:08:50.445990+00:00"
+    }
+  },
+  "next_dagrun_create_after_utc": "2026-11-19T22:20:00+00:00",
+  "page_size": [
+    1600,
+    1000
+  ],
+  "table_projection_count": 7
+}
