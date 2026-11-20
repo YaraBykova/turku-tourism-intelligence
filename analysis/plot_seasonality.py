@@ -29,7 +29,7 @@ with psycopg.connect(
         by_year[month.year].append((month.month, nights, preliminary))
 
 if not by_year:
-    raise ValueError("No hotel nights found in PostgreSQL for Turku.")
+    raise ValueError("В PostgreSQL не найдены данные о ночёвках в Турку.")
 
 fig, ax = plt.subplots(figsize=(11, 6))
 
@@ -41,18 +41,18 @@ for year, rows in sorted(by_year.items()):
         linestyle="--" if any(preliminary) else "-",
     )
 
-ax.set_title("Hotel overnight stays in Turku by month")
-ax.set_ylabel("Overnight stays")
-ax.set_xticks(range(1, 13), "Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec".split())
-ax.yaxis.set_major_formatter("{x:,.0f}")
+ax.set_title("Гостиничные ночёвки в Турку по месяцам")
+ax.set_ylabel("Количество ночёвок")
+ax.set_xticks(range(1, 13), "Янв Фев Мар Апр Май Июн Июл Авг Сен Окт Ноя Дек".split())
+ax.yaxis.set_major_formatter(lambda value, position: f"{value:,.0f}".replace(",", " "))
 ax.grid(axis="y", alpha=0.25)
 ax.legend(ncol=4)
 
 fig.subplots_adjust(bottom=0.19)
-fig.text(0.125, 0.09, "Source: Statistics Finland, StatFin 11lm (CC BY 4.0).", fontsize=9)
-fig.text(0.125, 0.05, "* Preliminary data. Hotel classification changed in 2025.", fontsize=9)
+fig.text(0.125, 0.09, "Источник: Statistics Finland, StatFin 11lm (CC BY 4.0).", fontsize=9)
+fig.text(0.125, 0.05, "* Предварительные данные. В 2025 году изменилась классификация гостиниц.", fontsize=9)
 
 output = project / "reports" / "turku_hotel_nights_seasonality.png"
 output.parent.mkdir(exist_ok=True)
 fig.savefig(output, dpi=160)
-print(f"Saved {output.name}")
+print(f"Сохранён {output.name}")

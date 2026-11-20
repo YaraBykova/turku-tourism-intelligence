@@ -1,4 +1,3 @@
-import calendar
 import os
 from pathlib import Path
 
@@ -6,10 +5,12 @@ import matplotlib.pyplot as plt
 import psycopg
 from dotenv import load_dotenv
 
+MONTHS_RU = "Янв Фев Мар Апр Май Июн Июл Авг Сен Окт Ноя Дек".split()
+
 
 def create_figure(rows):
     if len(rows) != 12:
-        raise ValueError("Expected 12 months for the segment comparison.")
+        raise ValueError("Для сравнения сегментов нужны данные за 12 месяцев.")
 
     year = rows[0][0].year
     months = [row[0].month for row in rows]
@@ -20,16 +21,17 @@ def create_figure(rows):
     fig, ax = plt.subplots(figsize=(11, 6))
     ax.plot(
         months, domestic_shares,
-        marker="o", color="#2166AC", label="Domestic nights",
+        marker="o", color="#2166AC", label="Внутренние ночёвки",
     )
     ax.plot(
         months, foreign_shares,
-        marker="o", color="#D97706", label="Foreign nights",
+        marker="o", color="#D97706", label="Иностранные ночёвки",
     )
     suffix = "*" if preliminary else ""
-    ax.set_title(f"Seasonal profile of hotel nights in Turku, {year}{suffix}")
-    ax.set_ylabel("Share of each segment's annual nights (%)")
-    ax.set_xticks(months, [calendar.month_abbr[month] for month in months])
+    ax.set_title(f"Сезонность гостиничных ночёвок в Турку, {year}{suffix}")
+    ax.set_ylabel("Доля годовых ночёвок сегмента (%)")
+    ax.set_xticks(months, [MONTHS_RU[month - 1] for month in months])
+    ax.yaxis.set_major_formatter(lambda value, position: f"{value:g}".replace(".", ","))
     ax.set_ylim(bottom=0)
     ax.grid(axis="y", alpha=0.25)
     ax.legend()
@@ -37,18 +39,18 @@ def create_figure(rows):
     fig.subplots_adjust(bottom=0.23)
     fig.text(
         0.125, 0.12,
-        "Source: Statistics Finland, StatFin 11lm (CC BY 4.0).",
+        "Источник: Statistics Finland, StatFin 11lm (CC BY 4.0).",
         fontsize=9,
     )
     fig.text(
         0.125, 0.08,
-        "Each segment is normalized separately to its annual total.",
+        "Каждый сегмент нормирован на собственный годовой итог.",
         fontsize=9,
     )
     if preliminary:
         fig.text(
             0.125, 0.04,
-            "* Comparison includes preliminary data.",
+            "* В сравнении используются предварительные данные.",
             fontsize=9,
         )
     return fig
@@ -75,7 +77,7 @@ def main():
     output.parent.mkdir(exist_ok=True)
     fig.savefig(output, dpi=160)
     plt.close(fig)
-    print(f"Saved {output.name}")
+    print(f"Сохранён {output.name}")
 
 
 if __name__ == "__main__":

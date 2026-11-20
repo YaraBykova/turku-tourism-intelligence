@@ -1,10 +1,11 @@
-import calendar
 import os
 from pathlib import Path
 
 import matplotlib.pyplot as plt
 import psycopg
 from dotenv import load_dotenv
+
+MONTHS_RU = "Янв Фев Мар Апр Май Июн Июл Авг Сен Окт Ноя Дек".split()
 
 project = Path(__file__).resolve().parents[1]
 load_dotenv(project / ".env")
@@ -24,10 +25,10 @@ with psycopg.connect(
     rows = connection.execute(query).fetchall()
 
 if not rows:
-    raise ValueError("No data found for the monthly comparison.")
+    raise ValueError("Не найдены данные для помесячного сравнения.")
 
 if any(row[1] is None for row in rows):
-    raise ValueError("Previous-year data is missing for some months.")
+    raise ValueError("Для части месяцев отсутствуют данные предыдущего года.")
 
 year = rows[0][0].year
 months = [row[0].month for row in rows]
@@ -36,10 +37,12 @@ changes = [row[3] for row in rows]
 previous_total = sum(row[1] for row in rows)
 total_change = sum(changes)
 change_pct = 100.0 * total_change / previous_total
+formatted_change = f"{total_change:+,}".replace(",", " ")
+formatted_pct = f"{change_pct:+.2f}".replace(".", ",")
 
 period = (
-    f"{calendar.month_abbr[months[0]]}"
-    f"–{calendar.month_abbr[months[-1]]}"
+    f"{MONTHS_RU[months[0] - 1]}"
+    f"–{MONTHS_RU[months[-1] - 1]}"
 )
 
 fig, ax = plt.subplots(figsize=(11, 6))
@@ -52,18 +55,18 @@ bars = ax.bar(
 
 ax.bar_label(
     bars,
-    labels=[f"{value:+,}" for value in changes],
+    labels=[f"{value:+,}".replace(",", " ") for value in changes],
     padding=4,
     fontsize=9,
 )
 
 ax.set_title(
-    f"Turku hotel nights: monthly change, {year} vs {year - 1}\n"
-    f"{period}: {total_change:+,} nights ({change_pct:+.2f}%)"
+    f"Ночёвки в Турку: помесячное изменение, {year} к {year - 1}\n"
+    f"{period}: {formatted_change} ночёвок ({formatted_pct}%)"
 )
-ax.set_ylabel("Change in overnight stays")
-ax.set_xticks(months, [calendar.month_abbr[month] for month in months])
-ax.yaxis.set_major_formatter("{x:,.0f}")
+ax.set_ylabel("Изменение количества ночёвок")
+ax.set_xticks(months, [MONTHS_RU[month - 1] for month in months])
+ax.yaxis.set_major_formatter(lambda value, position: f"{value:,.0f}".replace(",", " "))
 ax.axhline(0, color="#333333", linewidth=0.8)
 ax.set_axisbelow(True)
 ax.grid(axis="y", alpha=0.2)
@@ -72,14 +75,14 @@ ax.margins(y=0.18)
 fig.subplots_adjust(bottom=0.19)
 fig.text(
     0.125, 0.09,
-    "Source: Statistics Finland, StatFin 11lm (CC BY 4.0).",
+    "Источник: Statistics Finland, StatFin 11lm (CC BY 4.0).",
     fontsize=9,
 )
 
 if any(row[5] for row in rows):
     fig.text(
         0.125, 0.05,
-        "* Comparison includes preliminary data.",
+        "* В сравнении используются предварительные данные.",
         fontsize=9,
     )
 
@@ -88,4 +91,4 @@ output.parent.mkdir(exist_ok=True)
 fig.savefig(output, dpi=160)
 plt.close(fig)
 
-print(f"Saved {output.name}")
+print(f"Сохранён {output.name}")
